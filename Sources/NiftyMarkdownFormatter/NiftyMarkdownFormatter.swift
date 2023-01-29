@@ -9,27 +9,33 @@ import SwiftUI
 
 /**
  SwiftUI view with formatted markdown. The formatted markdown is wrapped in a `VStack` with no extra view modifiers.
- 
+
  - Parameter markdown: The text needed to be formatted, as a `String`
  - Parameter alignment: The horizontal alignment of the `VStack` in the view. Default is `.center`, like in default `VStack`.
  - Parameter spacing: The distance between adjacent subviews, or `nil` if you want the stack to choose a default distance for each pair of subviews.
+ - Parameter focusable: The ability to focus on single line of text when scrolling the content on tvOS, for example in ScrollView.
  */
 public struct FormattedMarkdown: View {
     let markdown: String
     let alignment: HorizontalAlignment
     let spacing: CGFloat?
+    let focusable: Bool
 
-    public init(markdown: String, alignment: HorizontalAlignment? = nil, spacing: CGFloat? = nil) {
+    public init(markdown: String, alignment: HorizontalAlignment? = nil, spacing: CGFloat? = nil, focusable: Bool = false) {
         self.markdown = markdown
         self.alignment = alignment ?? .center
         self.spacing = spacing
+        self.focusable = focusable
     }
-    
+
     public var body: some View {
         let formattedStrings = formattedMarkdownArray(markdown: markdown)
         VStack(alignment: alignment, spacing: spacing) {
             ForEach(0..<formattedStrings.count, id: \.self) { textView in
                 formattedStrings[textView]
+#if os(tvOS)
+                    .focusable(focusable)
+#endif
             }
         }
     }
@@ -39,7 +45,7 @@ public struct FormattedMarkdown: View {
  Formats the markdown.
 
  - Parameter markdown: the markdown to be formatted as a `String`.
- 
+
  - Returns: array of `Text` views.
  */
 public func formattedMarkdownArray(markdown: String) -> [AnyView] {
@@ -88,6 +94,6 @@ public func formattedMarkdownArray(markdown: String) -> [AnyView] {
             }
         }
     }
-    
+
     return formattedViews
 }
